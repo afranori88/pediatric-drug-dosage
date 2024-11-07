@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pediatric Drug Dosage</title>
+	<meta name="keywords" content="pediatric dosage, drug dosage calculator, pediatric medication dosing">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+		}
+		h1 {
+			text-align: center;
+		}
+		form {
+			margin-bottom: 20px;
+		}
+		input[type=text] {
+			padding: 5px;
+			margin: 5px;
+		}
+		button {
+			padding: 5px 10px;
+		}
+		#results {
+			margin-top: 20px;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+	</style>
+</head>
+<body>
+	<h1>Pediatric Drug Dosage</h1>
+	<form>
+		<label for="drugName">Drug Name:</label>
+		<input type="text" id="drugName" name="drugName"><br>
+
+		<label for="dosageForm">Dosage Form:</label>
+		<input type="text" id="dosageForm" name="dosageForm"><br>
+
+		<label for="patientWeight">Patient Weight (kg):</label>
+		<input type="text" id="patientWeight" name="patientWeight"><br>
+
+		<label for="drugConcentration">Drug Concentration:</label>
+		<input type="text" id="drugConcentration" name="drugConcentration"><br>
+
+		<button type="button" onclick="calculateDosage()">Submit</button>
+	</form>
+
+	<div id="results"></div>
+
+	<script>
+		function calculateDosage() {
+			const drugName = document.getElementById("drugName").value;
+			const dosageForm = document.getElementById("dosageForm").value;
+			const patientWeight = document.getElementById("patientWeight").value;
+			const drugConcentration = document.getElementById("drugConcentration").value;
+
+			const sources = [
+				"https://www.ncbi.nlm.nih.gov/books/NBK501922/", // LactMed Database
+				"https://www.aap.org/", // American Academy of Pediatrics (AAP)
+				"https://www.who.int/", // World Health Organization (WHO)
+				"https://www.uptodate.com/", // UpToDate
+				"https://www.ema.europa.eu/", // European Medicines Agency (EMA)
+				"https://bnf.nice.org.uk/", // BNF
+				"https://www.lexi.com/", // Lexi-comp
+				"https://www.drugs.com/", // Drugs.com
+				"https://www.medscape.com/" // Medscape
+			];
+
+			const fetchData = async () => {
+				const responses = await Promise.all(sources.map(async (source) => {
+					const response = await fetch(`${source}/api/pediatric-dosage?drug=${drugName}&form=${dosageForm}&weight=${patientWeight}&concentration=${drugConcentration}`);
+					return response.json();
+				}));
+
+				const results = document.getElementById("results");
+				results.innerHTML = "";
+
+				responses.forEach((data, index) => {
+					if (data.dosage) {
+						const sourceLink = `<a href="${sources[index]}" target="_blank">${sources[index]}</a>`;
+						const dosagePoint = `**${data.dosage}**`;
+						const resultElement = document.createElement("div");
+						resultElement.innerHTML = `${dosagePoint} (Source: ${sourceLink})`;
+						results.appendChild(resultElement);
+					}
+				});
+			};
+
+			fetchData();
+		}
+	</script>
+</body>
+</html>
